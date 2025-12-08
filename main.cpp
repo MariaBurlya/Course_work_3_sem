@@ -1,226 +1,201 @@
-#include "data.cpp"
+#include "Data.cpp"
 #include <iostream>
-#include <vector>
 #include <locale>
 
 using namespace std;
 
-void printHeader(const string& title) {
-    cout << "\n=== " << title << " ===" << endl;
+void displayMenu() {
+    cout << "\n=== МЕНЮ РАБОТЫ С ДАТАМИ ===" << endl;
+    cout << "1. Показать текущую дату" << endl;
+    cout << "2. Создать новую дату" << endl;
+    cout << "3. Узнать дату через X дней" << endl;
+    cout << "4. Узнать дату X дней назад" << endl;
+    cout << "5. Вычислить разницу между датами" << endl;
+    cout << "6. Проверить существование даты (29 февраля)" << endl;
+    cout << "7. Сравнить две даты" << endl;
+    cout << "0. Выход" << endl;
+    cout << "Выберите действие: ";
 }
 
-void testConstructors() {
-    printHeader("ТЕСТ КОНСТРУКТОРОВ");
-    
-    cout << "1. Конструктор по умолчанию: ";
-    Date d1;
-    d1.print();
-    cout << endl;
-    
-    cout << "2. Конструктор с параметрами (15.07.2023): ";
-    Date d2(15, 7, 2023);
-    d2.print();
-    cout << endl;
-    
-    cout << "3. Конструктор копирования: ";
-    Date d3 = d2;
-    d3.print();
-    cout << endl;
-    
-    cout << "4. Попытка создания некорректной даты (31.02.2023): ";
+void createDateInteractive() {
     try {
-        Date d4(31, 2, 2023);
-        cout << "ОШИБКА: исключение не сгенерировано!" << endl;
-    } catch (const exception& e) {
-        cout << "Исключение перехвачено: " << e.what() << endl;
+        int d, m, y;
+        cout << "Введите день: ";
+        cin >> d;
+        cout << "Введите месяц: ";
+        cin >> m;
+        cout << "Введите год: ";
+        cin >> y;
+        
+        Date userDate(d, m, y);
+        cout << "Создана дата: ";
+        userDate.print();
+        cout << endl;
+        
+        // Дополнительная информация
+        cout << "Это " << (Date::isLeapYear(y) ? "високосный" : "невисокосный") << " год" << endl;
+    }
+    catch (const invalid_argument& e) {
+        cout << "Ошибка: " << e.what() << endl;
     }
 }
 
-void testOperators() {
-    printHeader("ТЕСТ ОПЕРАТОРОВ");
-    
-    Date d1(15, 7, 2023);
-    Date d2(20, 7, 2023);
-    
-    cout << "1. Оператор присваивания: ";
-    Date d3 = d1;
-    d3.print();
-    cout << endl;
-    
-    cout << "2. Оператор + (дата + дни): ";
-    Date d4 = d1 + 10;
-    d4.print();
-    cout << endl;
-    
-    cout << "3. Оператор - (дата - дни): ";
-    Date d5 = d1 - 10;
-    d5.print();
-    cout << endl;
-    
-    cout << "4. Оператор + (дни + дата): ";
-    Date d6 = 5 + d1;
-    d6.print();
-    cout << endl;
-    
-    cout << "5. Оператор +=: ";
-    d1 += 5;
-    d1.print();
-    cout << endl;
-    
-    cout << "6. Оператор -=: ";
-    d1 -= 10;
-    d1.print();
-    cout << endl;
-    
-    cout << "7. Префиксный ++: ";
-    ++d1;
-    d1.print();
-    cout << endl;
-    
-    cout << "8. Постфиксный ++: ";
-    d1++.print();
-    cout << " (возвращена старая дата: ";
-    d1.print();
-    cout << " - новая дата)" << endl;
-    
-    cout << "9. Оператор ==: " << (d1 == d2 ? "true" : "false") << endl;
-    cout << "10. Оператор !=: " << (d1 != d2 ? "true" : "false") << endl;
-    cout << "11. Оператор <: " << (d1 < d2 ? "true" : "false") << endl;
-    cout << "12. Оператор >: " << (d1 > d2 ? "true" : "false") << endl;
-}
-
-void testElementAccess() {
-    printHeader("ТЕСТ ДОСТУПА К ЭЛЕМЕНТАМ");
-    
-    Date d(15, 7, 2023);
-    
-    cout << "Дата: ";
-    d.print();
-    cout << endl;
-    
-    cout << "d[0] (день): " << d[0] << endl;
-    cout << "d[1] (месяц): " << d[1] << endl;
-    cout << "d[2] (год): " << d[2] << endl;
-    
-    cout << "\nИзменение через оператор []:" << endl;
-    d[0] = 20;  // меняем день
-    cout << "Новая дата: ";
-    d.print();
-    cout << endl;
-    
-    cout << "\nПопытка доступа к несуществующему элементу: ";
+void calculateFutureDate() {
     try {
-        cout << d[5] << endl;
-    } catch (const exception& e) {
-        cout << "Исключение: " << e.what() << endl;
+        Date today = Date::today();
+        cout << "Сегодня: ";
+        today.print();
+        cout << endl;
+        
+        int days;
+        cout << "Введите количество дней: ";
+        cin >> days;
+        
+        Date future = today + days;
+        cout << "Через " << days << " дней будет: ";
+        future.print();
+        cout << endl;
+    }
+    catch (const exception& e) {
+        cout << "Ошибка: " << e.what() << endl;
     }
 }
 
-void testTypeConversion() {
-    printHeader("ТЕСТ ПРЕОБРАЗОВАНИЯ ТИПОВ");
-    
-    Date d(15, 7, 2023);
-    
-    cout << "1. Преобразование в string: " << endl;
-    string s = d;  // неявное преобразование
-    cout << "   string s = d; // s = \"" << s << "\"" << endl;
-    
-    cout << "2. Явное преобразование в string: ";
-    cout << string(d) << endl;
-    
-    cout << "3. Преобразование в int (дней с 01.01.1970): ";
-    int days = d;
-    cout << days << " дней" << endl;
-    
-    cout << "4. Использование в cout (через string): ";
-    cout << d << endl;  // работает через operator string()
+void compareDates() {
+    try {
+        cout << "Введите первую дату:" << endl;
+        int d1, m1, y1;
+        cout << "День: "; cin >> d1;
+        cout << "Месяц: "; cin >> m1;
+        cout << "Год: "; cin >> y1;
+        Date date1(d1, m1, y1);
+        
+        cout << "Введите вторую дату:" << endl;
+        int d2, m2, y2;
+        cout << "День: "; cin >> d2;
+        cout << "Месяц: "; cin >> m2;
+        cout << "Год: "; cin >> y2;
+        Date date2(d2, m2, y2);
+        
+        cout << "\nРезультаты сравнения:" << endl;
+        cout << "Дата 1: "; date1.print(); cout << endl;
+        cout << "Дата 2: "; date2.print(); cout << endl;
+        
+        if (date1 == date2) {
+            cout << "Даты одинаковые" << endl;
+        } else if (date1 < date2) {
+            cout << "Первая дата раньше второй" << endl;
+        } else {
+            cout << "Первая дата позже второй" << endl;
+        }
+        
+        cout << "Разница в днях: " << date1.daysBetween(date2) << " дней" << endl;
+    }
+    catch (const invalid_argument& e) {
+        cout << "Ошибка: " << e.what() << endl;
+    }
 }
 
-void testAdditionalMethods() {
-    printHeader("ТЕСТ ДОПОЛНИТЕЛЬНЫХ МЕТОДОВ");
+void testLeapYear() {
+    int year;
+    cout << "Введите год для проверки 29 февраля: ";
+    cin >> year;
     
-    Date d1(15, 7, 2023);
-    Date d2(25, 7, 2023);
-    
-    cout << "1. Разница между ";
-    d1.print();
-    cout << " и ";
-    d2.print();
-    cout << ": " << d1.daysBetween(d2) << " дней" << endl;
-    
-    cout << "2. День недели для ";
-    d1.print();
-    cout << ": ";
-    string days[] = {"воскресенье", "понедельник", "вторник", "среда", 
-                     "четверг", "пятница", "суббота"};
-    cout << days[d1.dayOfWeek()] << endl;
-    
-    cout << "3. Сегодняшняя дата: ";
-    Date::today().print();
-    cout << endl;
-    
-    cout << "4. Проверка дат:" << endl;
-    cout << "   29.02.2023 - " << (Date::isValidDate(29, 2, 2023) ? "валидна" : "невалидна") << endl;
-    cout << "   29.02.2024 - " << (Date::isValidDate(29, 2, 2024) ? "валидна" : "невалидна") << endl;
-    cout << "   31.04.2023 - " << (Date::isValidDate(31, 4, 2023) ? "валидна" : "невалидна") << endl;
-}
-
-void testEdgeCases() {
-    printHeader("ТЕСТ КРАЙНИХ СЛУЧАЕВ");
-    
-    cout << "1. Переход через год:" << endl;
-    Date d(31, 12, 2023);
-    cout << "   Начальная дата: ";
-    d.print();
-    cout << endl;
-    cout << "   +1 день: ";
-    (d + 1).print();
-    cout << endl;
-    
-    cout << "\n2. Переход через месяц:" << endl;
-    d = Date(31, 1, 2023);
-    cout << "   Начальная дата: ";
-    d.print();
-    cout << endl;
-    cout << "   +1 день: ";
-    (d + 1).print();
-    cout << endl;
-    
-    cout << "\n3. Отрицательные дни (нормализация):" << endl;
-    d = Date(1, 1, 2023);
-    cout << "   Начальная дата: ";
-    d.print();
-    cout << endl;
-    cout << "   -1 день: ";
-    (d - 1).print();
-    cout << endl;
-    
-    cout << "\n4. Большое количество дней:" << endl;
-    d = Date(1, 1, 2023);
-    cout << "   +1000 дней: ";
-    (d + 1000).print();
-    cout << endl;
+    try {
+        Date leapTest(29, 2, year);
+        cout << "29 февраля " << year << " года существует!" << endl;
+        cout << year << " - високосный год" << endl;
+    }
+    catch (const invalid_argument& e) {
+        cout << "29 февраля " << year << " года НЕ существует!" << endl;
+        cout << year << " - невисокосный год" << endl;
+    }
 }
 
 int main() {
+
     setlocale(LC_ALL, "rus");
     
-    try {
-        testConstructors();
-        testOperators();
-        testElementAccess();
-        testTypeConversion();
-        testAdditionalMethods();
-        testEdgeCases();
+    int choice;
+    
+    do {
+        displayMenu();
+        cin >> choice;
         
-        cout << "\n=========================================" << endl;
-        cout << "ВСЕ ТЕСТЫ УСПЕШНО ЗАВЕРШЕНЫ!" << endl;
-        cout << "=========================================" << endl;
+        switch (choice) {
+            case 1: {
+                Date today = Date::today();
+                cout << "Сегодняшняя дата: ";
+                today.print();
+                cout << endl;
+                break;
+            }
+            case 2:
+                createDateInteractive();
+                break;
+            case 3:
+                calculateFutureDate();
+                break;
+            case 4: {
+                Date today = Date::today();
+                cout << "Сегодня: ";
+                today.print();
+                cout << endl;
+                
+                int days;
+                cout << "Введите количество дней: ";
+                cin >> days;
+                
+                Date past = today - days;
+                cout << days << " дней назад было: ";
+                past.print();
+                cout << endl;
+                break;
+            }
+            case 5: {
+                try {
+                    cout << "Введите первую дату:" << endl;
+                    int d1, m1, y1;
+                    cout << "День: "; cin >> d1;
+                    cout << "Месяц: "; cin >> m1;
+                    cout << "Год: "; cin >> y1;
+                    Date date1(d1, m1, y1);
+                    
+                    cout << "Введите вторую дату:" << endl;
+                    int d2, m2, y2;
+                    cout << "День: "; cin >> d2;
+                    cout << "Месяц: "; cin >> m2;
+                    cout << "Год: "; cin >> y2;
+                    Date date2(d2, m2, y2);
+                    
+                    int difference = date1.daysBetween(date2);
+                    cout << "\nРазница между датами: " << difference << " дней" << endl;
+                }
+                catch (const invalid_argument& e) {
+                    cout << "Ошибка: " << e.what() << endl;
+                }
+                break;
+            }
+            case 6:
+                testLeapYear();
+                break;
+            case 7:
+                compareDates();
+                break;
+            case 0:
+                cout << "Выход из программы..." << endl;
+                break;
+            default:
+                cout << "Неверный выбор. Попробуйте снова." << endl;
+        }
         
-    } catch (const exception& e) {
-        cerr << "\n!!! КРИТИЧЕСКАЯ ОШИБКА: " << e.what() << endl;
-        return 1;
-    }
+        if (choice != 0) {
+            cout << "\nНажмите Enter для продолжения...";
+            cin.ignore();
+            cin.get();
+        }
+        
+    } while (choice != 0);
     
     return 0;
 }
