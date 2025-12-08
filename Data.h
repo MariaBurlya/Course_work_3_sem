@@ -1,90 +1,91 @@
-// объявления классов, структур, прототипы функций, extern переменные
-
-#ifndef DATA_H
-#define DATA_H
+#ifndef DATE_H
+#define DATE_H
 
 #include <iostream>
-#include <stdexcept>  // для исключений
+#include <stdexcept>
 #include <string>
-
-using namespace std;
 
 class Date {
 private:
     int day;
     int month;
     int year;
-    
-    // Вспомогательные методы
-    bool isLeapYear(int y) const;
+
+    // Вспомогательные приватные методы
+    bool checkLeapYear(int y) const;  // Внутренний метод
     int daysInMonth(int m, int y) const;
-    void validate() const;
     void normalize();
-    
+    int toDays() const;
+    void fromDays(int days);
+
 public:
-    // Конструкторы (требование задания)
-    Date();                           // по умолчанию
-    Date(int d, int m, int y);        // с параметрами
-    Date(const Date& other);          // копирования
+    // Конструкторы
+    Date();
+    Date(int d, int m, int y);
+    Date(const Date& other);
     
-    // Деструктор (требование задания)
-    ~Date();
+    // Деструктор
+    ~Date() = default;
     
-    // Функция вывода на экран (требование задания)
+    // Геттеры
+    int getDay() const;
+    int getMonth() const;
+    int getYear() const;
+    
+    // Сеттеры с проверкой
+    void setDay(int d);
+    void setMonth(int m);
+    void setYear(int y);
+    
+    // Проверка корректности даты
+    bool isValid() const;
+    
+    // Функция вывода на экран
     void print() const;
-    string toString() const;
     
-    // Оператор присваивания (требование задания)
+    // Статический метод для получения текущей даты
+    static Date today();
+    
+    // Статический метод проверки високосного года
+    static bool isLeapYear(int y);
+    
+    // Перегруженные операторы
+    
+    // 1. Оператор присваивания
     Date& operator=(const Date& other);
     
-    // Бинарные арифметические операторы (требование задания)
-    Date operator+(int days) const;        // Date + int
-    Date operator-(int days) const;        // Date - int
-    friend Date operator+(int days, const Date& date); // int + Date
+    // 2. Бинарные арифметические операторы
+    Date operator+(int days) const;
+    Date operator-(int days) const;
+    friend Date operator+(int days, const Date& date);
     
-    // Арифметика с накоплением (требование задания)
+    // 3. Арифметика с накоплением
     Date& operator+=(int days);
     Date& operator-=(int days);
     
-    // Унарные операторы (требование задания)
-    Date& operator++();     // префиксный ++
-    Date operator++(int);   // постфиксный ++
-    Date& operator--();     // префиксный --
-    Date operator--(int);   // постфиксный --
+    // 4. Унарные операторы
+    Date& operator++();
+    Date operator++(int);
+    Date& operator--();
+    Date operator--(int);
     
-    // Логические операторы (требование задания)
-    bool operator==(const Date& other) const;
-    bool operator!=(const Date& other) const;
+    // 5. Логические операторы
     bool operator<(const Date& other) const;
     bool operator>(const Date& other) const;
     bool operator<=(const Date& other) const;
     bool operator>=(const Date& other) const;
+    bool operator==(const Date& other) const;
+    bool operator!=(const Date& other) const;
     
-    // Операторы взятия элемента (требование задания)
-    int& operator[](int index);               // для изменения
-    const int& operator[](int index) const;   // для чтения
+    // 6. Оператор взятия элемента []
+    int operator[](int index) const;
     
-    // Операторы преобразования типа (требование задания)
-    operator string() const;      // к строке
-    operator int() const;              // к int (дней с 01.01.1970)
+    // 7. Операторы преобразования типа
+    operator int() const;
+    operator std::string() const;
     
     // Дополнительные методы
     int daysBetween(const Date& other) const;
-    int dayOfWeek() const;  // 0-воскресенье, 1-понедельник...
-    
-    // Геттеры
-    int getDay() const { return day; }
-    int getMonth() const { return month; }
-    int getYear() const { return year; }
-    
-    // Статические методы
-    static Date today();
-    static bool isValidDate(int d, int m, int y);
-    
-private:
-    // Вспомогательный метод для преобразования в дни
-    int toDays() const;
-    static Date fromDays(int days);
 };
 
-#endif // DATA_H
+#endif // DATE_H
