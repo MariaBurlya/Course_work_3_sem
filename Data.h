@@ -12,64 +12,56 @@ private:
     int year;
 
     // Вспомогательные приватные методы
-    bool checkLeapYear(int y) const;  // Внутренний метод
+    bool isLeapYear(int y) const;
     int daysInMonth(int m, int y) const;
+    bool isValidDate(int d, int m, int y) const;
     void normalize();
     int toDays() const;
     void fromDays(int days);
 
 public:
     // Конструкторы
-    Date();
-    Date(int d, int m, int y);
-    Date(const Date& other);
-    
-    // Деструктор
-    ~Date() = default;
+    Date();                       // Текущая дата
+    Date(int d, int m, int y);    // Конкретная дата
+    Date(const Date& other);      // Копирование
     
     // Геттеры
     int getDay() const;
     int getMonth() const;
     int getYear() const;
     
-    // Сеттеры с проверкой
-    void setDay(int d);
-    void setMonth(int m);
-    void setYear(int y);
+    // Сеттеры
+    void setDate(int d, int m, int y);
     
-    // Проверка корректности даты
+    // Проверка корректности
     bool isValid() const;
     
-    // Функция вывода на экран
+    // Вывод
     void print() const;
+    std::string toString() const;
     
-    // Статический метод для получения текущей даты
+    // Статические методы
     static Date today();
+    static bool checkLeapYear(int y);
     
-    // Статический метод проверки високосного года
-    static bool isLeapYear(int y);
-    
-    // Перегруженные операторы
+    // === ПЕРЕГРУЖЕННЫЕ ОПЕРАТОРЫ ===
     
     // 1. Оператор присваивания
     Date& operator=(const Date& other);
     
-    // 2. Бинарные арифметические операторы
+    // 2. Арифметические
     Date operator+(int days) const;
     Date operator-(int days) const;
-    friend Date operator+(int days, const Date& date);
-    
-    // 3. Арифметика с накоплением
     Date& operator+=(int days);
     Date& operator-=(int days);
     
-    // 4. Унарные операторы
-    Date& operator++();
-    Date operator++(int);
-    Date& operator--();
-    Date operator--(int);
+    // 3. Унарные
+    Date& operator++();       // Префиксный ++
+    Date operator++(int);     // Постфиксный ++
+    Date& operator--();       // Префиксный --
+    Date operator--(int);     // Постфиксный --
     
-    // 5. Логические операторы
+    // 4. Сравнение
     bool operator<(const Date& other) const;
     bool operator>(const Date& other) const;
     bool operator<=(const Date& other) const;
@@ -77,15 +69,14 @@ public:
     bool operator==(const Date& other) const;
     bool operator!=(const Date& other) const;
     
-    // 6. Оператор взятия элемента []
+    // 5. Разность дат
+    int operator-(const Date& other) const;
+    
+    // 6. Доступ по индексу
     int operator[](int index) const;
     
-    // 7. Операторы преобразования типа
-    operator int() const;
+    // 7. Преобразование
     operator std::string() const;
-    
-    // Дополнительные методы
-    int daysBetween(const Date& other) const;
 };
 
 #endif // DATE_H
