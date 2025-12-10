@@ -2,95 +2,129 @@
 #include <ctime>
 #include <sstream>
 #include <iomanip>
-#include <cmath>
 
 using namespace std;
 
-// ==================== СТАТИЧЕСКИЕ МЕТОДЫ ====================
+// ==================== ПРИВАТНЫЕ МЕТОДЫ ====================
 
-// Статический метод проверки високосного года
-bool Date::isLeapYear(int y) {
+// Проверка високосного года
+bool Date::isLeapYear(int y) const {
     return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
-}
-
-// Статический метод для получения текущей даты
-Date Date::today() {
-    time_t now = time(nullptr);
-    tm* localTime = localtime(&now);
-    return Date(localTime->tm_mday, localTime->tm_mon + 1, localTime->tm_year + 1900);
-}
-
-// ==================== ВСПОМОГАТЕЛЬНЫЕ ПРИВАТНЫЕ МЕТОДЫ ====================
-
-// Внутренний метод проверки високосного года
-bool Date::checkLeapYear(int y) const {
-    return isLeapYear(y);  // Используем статический метод
 }
 
 // Количество дней в месяце
 int Date::daysInMonth(int m, int y) const {
-    static const int days[] = {31, 28, 31, 30, 31, 30, 
-                               31, 31, 30, 31, 30, 31};
-    if (m == 2 && isLeapYear(y)) {
-        return 29;
+    switch(m) {
+        case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+            return 31;
+        case 4: case 6: case 9: case 11:
+            return 30;
+        case 2:
+            return isLeapYear(y) ? 29 : 28;
+        default:
+            return 0;
     }
-    if (m < 1 || m > 12) return 0;
-    return days[m - 1];
 }
 
-// Преобразование даты в количество дней от 01.01.0001
-int Date::toDays() const {
-    int d = day;
-    int m = month;
-    int y = year;
-    
-    // Алгоритм преобразования даты в дни
-    m = (m + 9) % 12;
-    y = y - m / 10;
-    int daysFromYear = 365 * y + y / 4 - y / 100 + y / 400;
-    int daysFromMonth = (m * 306 + 5) / 10;
-    
-    return daysFromYear + daysFromMonth + d - 1;
+// Проверка корректности даты
+bool Date::isValidDate(int d, int m, int y) const {
+    if (y < 0 || y > 9999) return false;
+    if (m < 1 || m > 12) return false;
+    if (d < 1 || d > daysInMonth(m, y)) return false;
+    return true;
 }
 
-// Преобразование количества дней в дату
-void Date::fromDays(int days) {
-    // Алгоритм преобразования дней в дату
-    int g = days + 365;
-    int y = (10000 * g + 14780) / 3652425;
-    int ddd = g - (365 * y + y / 4 - y / 100 + y / 400);
-    
-    if (ddd < 0) {
-        y--;
-        ddd = g - (365 * y + y / 4 - y / 100 + y / 400);
-    }
-    
-    int mi = (100 * ddd + 52) / 3060;
-    int mm = (mi + 2) % 12 + 1;
-    y = y + (mi + 2) / 12;
-    int dd = ddd - (mi * 306 + 5) / 10 + 1;
-    
-    day = dd;
-    month = mm;
-    year = y;
-}
-
-// Приведение даты к корректному виду
+// Нормализация даты (исправление некорректных значений)
 void Date::normalize() {
-    if (!isValid()) {
-        int days = this->toDays();
-        this->fromDays(days);
+    // Если год отрицательный - делаем положительным
+    if (year < 0) year = -year;
+    
+    // Корректировка месяцев > 12
+    while (month > 12) {
+        month -= 12;
+        year++;
+    }
+    while (month < 1) {
+        month += 12;
+        year--;
+    }
+    
+    // Корректировка дней
+    while (day > daysInMonth(month, year)) {
+        day -= daysInMonth(month, year);
+        month++;
+        if (month > 12) {
+            month = 1;
+            year++;
+        }
+    }
+    
+    while (day < 1) {
+        month--;
+        if (month < 1) {
+            month = 12;
+            year--;
+        }
+        day += daysInMonth(month, year);
     }
 }
 
-// ==================== КОНСТРУКТОРЫ И ДЕСТРУКТОР ====================
+// Конвертация в дни от 01.01.0000
+int Date::toDays() const {
+    int y = year;
+    int m = month;
+    int d = day;
+    
+    // Учитываем годы
+    int totalDays = y * 365 + y / 4 - y / 100 + y / 400;
+    
+    // Добавляем дни за месяцы текущего года
+    for (int i = 1; i < m; i++) {
+        totalDays += daysInMonth(i, y);
+    }
+    
+    // Добавляем дни
+    totalDays += d - 1;  // -1 потому что 01.01 считается как 0 дней
+    
+    return totalDays;
+}
 
-// Конструктор по умолчанию
-Date::Date() : day(1), month(1), year(2000) {}
+// Конвертация из дней в дату
+void Date::fromDays(int days) {
+    // Начальная дата: 1 января 0 года
+    year = 0;
+    
+    // Определяем год
+    while (days >= (isLeapYear(year) ? 366 : 365)) {
+        days -= isLeapYear(year) ? 366 : 365;
+        year++;
+    }
+    
+    // Определяем месяц
+    month = 1;
+    while (days >= daysInMonth(month, year)) {
+        days -= daysInMonth(month, year);
+        month++;
+    }
+    
+    // Определяем день
+    day = days + 1;  // +1 потому что days отсчитывается с 0
+}
+
+// ==================== ПУБЛИЧНЫЕ МЕТОДЫ ====================
+
+// Конструктор по умолчанию (текущая дата)
+Date::Date() {
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    year = 1900 + ltm->tm_year;
+    month = 1 + ltm->tm_mon;
+    day = ltm->tm_mday;
+}
 
 // Конструктор с параметрами
 Date::Date(int d, int m, int y) : day(d), month(m), year(y) {
-    if (!isValid()) {
+    if (!isValidDate(d, m, y)) {
         throw invalid_argument("Некорректная дата!");
     }
 }
@@ -98,61 +132,53 @@ Date::Date(int d, int m, int y) : day(d), month(m), year(y) {
 // Конструктор копирования
 Date::Date(const Date& other) : day(other.day), month(other.month), year(other.year) {}
 
-// ==================== ГЕТТЕРЫ И СЕТТЕРЫ ====================
-
 // Геттеры
 int Date::getDay() const { return day; }
 int Date::getMonth() const { return month; }
 int Date::getYear() const { return year; }
 
-// Сеттеры
-void Date::setDay(int d) {
-    int oldDay = day;
+// Сеттер
+void Date::setDate(int d, int m, int y) {
+    if (!isValidDate(d, m, y)) {
+        throw invalid_argument("Некорректная дата!");
+    }
     day = d;
-    if (!isValid()) {
-        day = oldDay;
-        throw invalid_argument("Некорректный день!");
-    }
-}
-
-void Date::setMonth(int m) {
-    int oldMonth = month;
     month = m;
-    if (!isValid()) {
-        month = oldMonth;
-        throw invalid_argument("Некорректный месяц!");
-    }
-}
-
-void Date::setYear(int y) {
-    int oldYear = year;
     year = y;
-    if (!isValid()) {
-        year = oldYear;
-        throw invalid_argument("Некорректный год!");
-    }
 }
 
-// ==================== ОСНОВНЫЕ МЕТОДЫ ====================
-
-// Проверка корректности даты
+// Проверка корректности текущей даты
 bool Date::isValid() const {
-    if (year < 1) return false;
-    if (month < 1 || month > 12) return false;
-    if (day < 1 || day > daysInMonth(month, year)) return false;
-    return true;
+    return isValidDate(day, month, year);
 }
 
-// Вывод даты на экран
+// Вывод даты
 void Date::print() const {
-    cout << setw(2) << setfill('0') << day << "."
-         << setw(2) << setfill('0') << month << "."
-         << setw(4) << year;
+    cout << toString();
+}
+
+// Преобразование в строку
+string Date::toString() const {
+    ostringstream oss;
+    oss << setw(2) << setfill('0') << day << "."
+        << setw(2) << setfill('0') << month << "."
+        << setw(4) << setfill('0') << year;
+    return oss.str();
+}
+
+// Текущая дата
+Date Date::today() {
+    return Date();  // Используем конструктор по умолчанию
+}
+
+// Статическая проверка високосного года
+bool Date::checkLeapYear(int y) {
+    return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
 }
 
 // ==================== ПЕРЕГРУЖЕННЫЕ ОПЕРАТОРЫ ====================
 
-// 1. Оператор присваивания
+// Оператор присваивания
 Date& Date::operator=(const Date& other) {
     if (this != &other) {
         day = other.day;
@@ -162,122 +188,100 @@ Date& Date::operator=(const Date& other) {
     return *this;
 }
 
-// 2. Бинарные арифметические операторы
-
-// Дата + число
+// Сложение с днями
 Date Date::operator+(int days) const {
-    Date result(*this);
-    result += days;
+    Date result = *this;
+    result.fromDays(result.toDays() + days);
     return result;
 }
 
-// Дата - число
+// Вычитание дней
 Date Date::operator-(int days) const {
-    return *this + (-days);
+    Date result = *this;
+    result.fromDays(result.toDays() - days);
+    return result;
 }
 
-// Дружественная функция: число + Дата
-Date operator+(int days, const Date& date) {
-    return date + days;
-}
-
-// 3. Арифметика с накоплением
+// Сложение с накоплением
 Date& Date::operator+=(int days) {
-    int currentDays = this->toDays();
-    currentDays += days;
-    this->fromDays(currentDays);
+    fromDays(toDays() + days);
     return *this;
 }
 
+// Вычитание с накоплением
 Date& Date::operator-=(int days) {
-    return *this += (-days);
+    fromDays(toDays() - days);
+    return *this;
 }
 
-// 4. Унарные операторы
-
-// Префиксный ++
+// Префиксный инкремент (++date)
 Date& Date::operator++() {
     *this += 1;
     return *this;
 }
 
-// Постфиксный ++
+// Постфиксный инкремент (date++)
 Date Date::operator++(int) {
-    Date temp(*this);
-    ++(*this);
+    Date temp = *this;
+    *this += 1;
     return temp;
 }
 
-// Префиксный --
+// Префиксный декремент (--date)
 Date& Date::operator--() {
     *this -= 1;
     return *this;
 }
 
-// Постфиксный --
+// Постфиксный декремент (date--)
 Date Date::operator--(int) {
-    Date temp(*this);
-    --(*this);
+    Date temp = *this;
+    *this -= 1;
     return temp;
 }
 
-// 5. Логические операторы
-
+// Операторы сравнения
 bool Date::operator<(const Date& other) const {
-    if (year != other.year) return year < other.year;
-    if (month != other.month) return month < other.month;
-    return day < other.day;
+    return toDays() < other.toDays();
 }
 
 bool Date::operator>(const Date& other) const {
-    return other < *this;
+    return toDays() > other.toDays();
 }
 
 bool Date::operator<=(const Date& other) const {
-    return !(*this > other);
+    return toDays() <= other.toDays();
 }
 
 bool Date::operator>=(const Date& other) const {
-    return !(*this < other);
+    return toDays() >= other.toDays();
 }
 
 bool Date::operator==(const Date& other) const {
-    return day == other.day && month == other.month && year == other.year;
+    return toDays() == other.toDays();
 }
 
 bool Date::operator!=(const Date& other) const {
-    return !(*this == other);
+    return toDays() != other.toDays();
 }
 
-// 6. Оператор взятия элемента []
+// Разность между датами
+int Date::operator-(const Date& other) const {
+    return toDays() - other.toDays();
+}
+
+// Доступ по индексу [0]-день, [1]-месяц, [2]-год
 int Date::operator[](int index) const {
-    switch (index) {
+    switch(index) {
         case 0: return day;
         case 1: return month;
         case 2: return year;
-        default: throw out_of_range("Индекс должен быть 0, 1 или 2");
+        default:
+            throw out_of_range("Индекс должен быть 0, 1 или 2");
     }
 }
 
-// 7. Операторы преобразования типа
-
-// Преобразование в int (количество дней от 01.01.0001)
-Date::operator int() const {
-    return this->toDays();
-}
-
-// Преобразование в string
+// Преобразование в строку
 Date::operator std::string() const {
-    stringstream ss;
-    ss << setw(2) << setfill('0') << day << "."
-       << setw(2) << setfill('0') << month << "."
-       << setw(4) << year;
-    return ss.str();
-}
-
-// ==================== ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ ====================
-
-// Разница в днях между двумя датами
-int Date::daysBetween(const Date& other) const {
-    return abs(this->toDays() - other.toDays());
+    return toString();
 }
