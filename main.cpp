@@ -1,6 +1,8 @@
 #include "Data.h"
 #include <iostream>
 #include <limits>
+#include <locale>
+
 using namespace std;
 
 void clearInput() {
@@ -9,9 +11,7 @@ void clearInput() {
 }
 
 void printMenu() {
-    cout << "\n" << string(50, '=') << "\n";
-    cout << "          Работа с датами\n";
-    cout << string(50, '=') << "\n";
+    cout << "Выберите действие, которое вы хотите совершить: \n";
     cout << "1. Вывести сегодняшнюю, вчерашнюю и завтрашнюю даты\n";
     cout << "2. Создать и проверить введенную дату\n";
     cout << "3. Дата X дней назад\n";
@@ -21,11 +21,13 @@ void printMenu() {
     cout << "7. Сравнить две даты\n";
     cout << "8. Последовательность дат вокруг указанной\n";
     cout << "0. Выход\n";
-    cout << string(50, '-') << "\n";
     cout << "Выберите пункт: ";
 }
 
 int main() {
+
+    setlocale(LC_ALL, "rus");
+
     int choice;
     Date date1, date2;
     int d, m, y, days;
@@ -38,17 +40,13 @@ int main() {
         try {
             switch(choice) {
                 case 1: {
-                    cout << "\n" << string(50, '=') << "\n";
-                    cout << "         Сегодняшняя дата\n";
-                    cout << string(50, '=') << "\n";
-                    
+                                        
                     Date today = Date::today();
                     Date yesterday = today;
                     Date tomorrow = today;
                     
-                    // Используем унарные операторы
-                    --yesterday;  // Префиксный декремент
-                    ++tomorrow;   // Префиксный инкремент
+                    --yesterday;
+                    ++tomorrow;
                     
                     cout << "Сегодняшняя дата:    " << today.toString() << "\n";
                     cout << "Вчерашняя дата: " << yesterday.toString() << "\n";
@@ -58,7 +56,7 @@ int main() {
                 }
                     
                 case 2: {
-                    cout << "Введите день месяц год: ";
+                    cout << "Введите день месяц год через пробел: ";
                     cin >> d >> m >> y;
     
                     try {
@@ -72,60 +70,64 @@ int main() {
                 }
                     
                 case 3: {
-                    if (!date1.isValid()) {
-                        cout << "\nСначала создайте дату (пункт 2)!\n";
-                        break;
-                    }
-                    
-                    cout << "\n" << string(50, '=') << "\n";
-                    cout << "           ДАТА НЕСКОЛЬКО ДНЕЙ НАЗАД\n";
-                    cout << string(50, '=') << "\n";
-                    
-                    cout << "Текущая дата: " << date1.toString() << "\n";
+                    cout << "Введите день месяц год через пробел: ";
+                    cin >> d >> m >> y;
+    
+                try {
+                    // Пытаемся создать дату
+                    date1 = Date(d, m, y);
+                    cout << "Создана дата: " << date1.toString() << endl;
+        
+                     // Если создание успешно, запрашиваем количество дней
                     cout << "Введите количество дней: ";
                     cin >> days;
                     clearInput();
-                    
-                    Date pastDate = date1 - days;
-                    cout << "\nДата " << days << " дней назад: " << pastDate.toString() << "\n";
-                    
-                    // Проверка с использованием operator-=
-                    Date checkDate = date1;
-                    checkDate -= days;
-                    cout << "Проверка через operator-=: " << checkDate.toString() << "\n";
-                    
-                    if (pastDate == checkDate) {
-                        cout << "✓ Результаты совпадают!\n";
+        
+                    if (days < 0) {
+                        cout << "Ошибка: количество дней не может быть отрицательным!\n";
+                        break;
                     }
-                    break;
+        
+                    // Вычисляем дату несколько дней назад
+                    Date pastDate = date1 - days;
+                    cout << "\nДата " << days << " дней назад: " << pastDate.toString() << endl;
+        
                 }
+
+                catch (const exception& e) {
+                // Если произошла ошибка при создании даты
+                cout << "\nОшибка: " << e.what() << endl;
+                cout << "Невозможно вычислить: дата " << d << "." << m << "." << y << " некорректна\n";
+                }
+                break;
+        }
                     
                 case 4: {
-                    if (!date1.isValid()) {
-                        cout << "\n⚠ Сначала создайте дату (пункт 2)!\n";
-                        break;
+                    cout << "Введите день месяц год через пробел: ";
+                    cin >> d >> m >> y;
+
+                    try {
+                        date1 = Date(d, m, y);
+                        cout << "Создана дата: " << date1.toString() << endl;
+
+                        cout << "Введите количество дней: ";
+                        cin >> days;
+                        clearInput();
+
+                        if (days < 0) {
+                            cout << "Ошибка: количество дней не может быть отрицательным!\n";
+                            break;
+                        }
+
+                        Date futureDate = date1 + days;
+                        cout << "\nДата через " << days << " дней: " << futureDate.toString() << "\n";
                     }
                     
-                    cout << "\n" << string(50, '=') << "\n";
-                    cout << "          ДАТА ЧЕРЕЗ НЕСКОЛЬКО ДНЕЙ\n";
-                    cout << string(50, '=') << "\n";
-                    
-                    cout << "Текущая дата: " << date1.toString() << "\n";
-                    cout << "Введите количество дней: ";
-                    cin >> days;
-                    clearInput();
-                    
-                    Date futureDate = date1 + days;
-                    cout << "\nДата через " << days << " дней: " << futureDate.toString() << "\n";
-                    
-                    // Проверка с использованием operator+=
-                    Date checkDate = date1;
-                    checkDate += days;
-                    cout << "Проверка через operator+=: " << checkDate.toString() << "\n";
-                    
-                    if (futureDate == checkDate) {
-                        cout << "✓ Результаты совпадают!\n";
+                    catch(const exception& e) {
+                        cout << "\nОшибка: " << e.what() << endl;
+                        cout << "Невозможно вычислить: дата " << d << "." << m << "." << y << " некорректна\n";
                     }
+
                     break;
                 }
                     
