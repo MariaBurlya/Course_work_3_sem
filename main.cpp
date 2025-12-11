@@ -145,14 +145,17 @@ int main() {
                 case 6: {
                     cout << "Введите год: ";
                     if (cin >> y) {
-                        clearInput();  // ← ДОБАВЛЕНО
-                        cout << "Год " << y << " - " 
-                             << (Date::checkLeapYear(y) ? "високосный" : "невисокосный") 
-                             << endl;
+                        if (y < 0) {
+                            cout << "Ошибка: год не может быть отрицательным!\n";
+                        } else {
+                            cout << "Год " << y << " - " 
+                            << (Date::checkLeapYear(y) ? "високосный" : "невисокосный") 
+                            << endl;
+                        }
                     } else {
                         cout << "Ошибка ввода\n";
-                        clearInput();  // Уже есть в clearInput()
                     }
+                    clearInput();
                     break;
                 }
                     
