@@ -1,7 +1,6 @@
 #include "Date.cpp"
 #include <iostream>
 #include <limits>
-#include <locale>
 #include <cmath>
 
 using namespace std;
@@ -27,8 +26,6 @@ void printMenu() {
 
 int main() {
     
-    setlocale(LC_ALL, "rus");
-
     int choice;
     Date date1, date2;
     int d, m, y, days;
