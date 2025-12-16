@@ -30,22 +30,23 @@ public:
     static bool checkLeapYear(int y);
     
     // Арифметические операторы
-    Date operator+(int days) const;          
-    Date operator-(int days) const;          
-    int operator-(const Date& other) const;   
+    Date operator+(int days) const;
+    Date operator-(int days) const;
+    int operator-(const Date& other) const;
     
-    // Операторы присваивания 
+    // Операторы присваивания
     Date& operator+=(int days);
     Date& operator-=(int days);
     
-    // Инкремент/декремент 
-    Date& operator++();      
-    Date operator++(int);   
-    Date& operator--();     
-    Date operator--(int);    
-
-    bool operator<(const Date& other) const;   
-    bool operator==(const Date& other) const;  
+    // Инкремент/декремент
+    Date& operator++();
+    Date operator++(int);
+    Date& operator--();
+    Date operator--(int);
+    
+    // Операторы сравнения
+    bool operator<(const Date& other) const;
+    bool operator==(const Date& other) const;
 };
 
-#endif 
+#endif // DATE_H
