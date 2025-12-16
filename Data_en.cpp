@@ -33,29 +33,23 @@ bool Date::isValidDate(int d, int m, int y) const {
 int Date::toDays() const {
     int totalDays = 0;
     
-    // Дни за полные годы
     for (int i = 0; i < year; i++) {
         totalDays += isLeapYear(i) ? 366 : 365;
     }
     
-    // Дни за полные месяцы текущего года
     for (int i = 1; i < month; i++) {
         totalDays += daysInMonth(i, year);
     }
     
-    // Дни текущего месяца
     totalDays += day - 1;
-    
     return totalDays;
 }
 
 void Date::fromDays(int days) {
     if (days < 0) {
-        // Обработка отрицательных дней (даты до 01.01.0000)
         days = 0;
     }
     
-    // Находим год
     year = 0;
     while (true) {
         int daysInThisYear = isLeapYear(year) ? 366 : 365;
@@ -66,7 +60,6 @@ void Date::fromDays(int days) {
         year++;
     }
     
-    // Находим месяц
     month = 1;
     while (true) {
         int daysInThisMonth = daysInMonth(month, year);
@@ -77,8 +70,7 @@ void Date::fromDays(int days) {
         month++;
     }
     
-    // Находим день
-    day = days + 1; // +1 потому что дни начинаются с 1
+    day = days + 1;
 }
 
 Date::Date() {
@@ -93,10 +85,6 @@ Date::Date(int d, int m, int y) : day(d), month(m), year(y) {
     if (!isValidDate(d, m, y)) {
         throw invalid_argument("Invalid date!");
     }
-}
-
-bool Date::isValid() const {
-    return isValidDate(day, month, year);
 }
 
 string Date::toString() const {
@@ -163,80 +151,10 @@ bool Date::operator<(const Date& other) const {
     return toDays() < other.toDays();
 }
 
-bool Date::operator>(const Date& other) const {
-    return toDays() > other.toDays();
-}
-
 bool Date::operator==(const Date& other) const {
     return toDays() == other.toDays();
 }
 
-bool Date::operator!=(const Date& other) const {
-    return toDays() != other.toDays();
-}
-
-bool Date::operator<=(const Date& other) const {
-    return toDays() <= other.toDays();
-}
-
-bool Date::operator>=(const Date& other) const {
-    return toDays() >= other.toDays();
-}
-
 int Date::operator-(const Date& other) const {
     return toDays() - other.toDays();
-}
-
-// Новые операторы для задания
-Date& Date::operator=(const Date& other) {
-    if (this != &other) {
-        day = other.day;
-        month = other.month;
-        year = other.year;
-    }
-    return *this;
-}
-
-// Оператор [] для доступа к компонентам даты
-int Date::operator[](int index) const {
-    switch(index) {
-        case 0: return day;
-        case 1: return month;
-        case 2: return year;
-        default: throw out_of_range("Index must be 0, 1 or 2");
-    }
-}
-
-// Оператор преобразования в int (количество дней с 01.01.0000)
-Date::operator int() const {
-    return toDays();
-}
-
-// Оператор преобразования в string
-Date::operator string() const {
-    return toString();
-}
-
-// Операторы ввода/вывода (добавьте их в Date.h)
-ostream& operator<<(ostream& os, const Date& date) {
-    os << date.toString();
-    return os;
-}
-
-istream& operator>>(istream& is, Date& date) {
-    int d, m, y;
-    char dot1, dot2;
-    
-    if (is >> d >> dot1 >> m >> dot2 >> y) {
-        if (dot1 == '.' && dot2 == '.') {
-            try {
-                date = Date(d, m, y);
-            } catch (const exception& e) {
-                is.setstate(ios::failbit);
-            }
-        } else {
-            is.setstate(ios::failbit);
-        }
-    }
-    return is;
 }
