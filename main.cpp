@@ -1,7 +1,8 @@
-#include "Data.h"
+#include "Date.cpp"
 #include <iostream>
 #include <limits>
 #include <locale>
+#include <cmath>
 
 using namespace std;
 
@@ -25,7 +26,9 @@ void printMenu() {
 }
 
 int main() {
+    
     setlocale(LC_ALL, "rus");
+
     int choice;
     Date date1, date2;
     int d, m, y, days;
@@ -33,7 +36,7 @@ int main() {
     do {
         printMenu();
         cin >> choice;
-        clearInput();  // Очистка после выбора пункта меню
+        clearInput();
         
         try {
             switch(choice) {
@@ -41,20 +44,21 @@ int main() {
                     Date today = Date::today();
                     Date yesterday = today;
                     Date tomorrow = today;
-                    
+
                     --yesterday;
                     ++tomorrow;
-                    
+    
                     cout << "Сегодняшняя дата:    " << today.toString() << "\n";
-                    cout << "Вчерашняя дата: " << yesterday.toString() << "\n";
-                    cout << "Завтрашняя дата: " << tomorrow.toString() << "\n";
+                    cout << "Вчерашняя дата:      " << yesterday.toString() << "\n";
+                    cout << "Завтрашняя дата:     " << tomorrow.toString() << "\n";
+                    
                     break;
                 }
                     
                 case 2: {
                     cout << "Введите дату (день месяц год): ";
                     cin >> d >> m >> y;
-                    clearInput();  // ← ДОБАВЛЕНО
+                    clearInput();
     
                     try {
                         date1 = Date(d, m, y);
@@ -69,7 +73,7 @@ int main() {
                 case 3: {
                     cout << "Введите дату (день месяц год): ";
                     cin >> d >> m >> y;
-                    clearInput();  // ← ДОБАВЛЕНО
+                    clearInput(); 
     
                     try {
                         date1 = Date(d, m, y);
@@ -97,7 +101,7 @@ int main() {
                 case 4: {
                     cout << "Введите дату (день месяц год): ";
                     cin >> d >> m >> y;
-                    clearInput();  // ← ДОБАВЛЕНО
+                    clearInput();
 
                     try {
                         date1 = Date(d, m, y);
@@ -126,12 +130,12 @@ int main() {
                     try {
                         cout << "Введите первую дату (день месяц год): ";
                         cin >> d >> m >> y;
-                        clearInput();  // ← ДОБАВЛЕНО
+                        clearInput();
                         Date date1(d, m, y);
         
                         cout << "Введите вторую дату (день месяц год): ";
                         cin >> d >> m >> y;
-                        clearInput();  // ← ДОБАВЛЕНО
+                        clearInput(); 
                         Date date2(d, m, y);
         
                         cout << "Разница между датами: " << abs(date1 - date2) << " дней\n";
@@ -163,12 +167,12 @@ int main() {
                     try {
                         cout << "Введите первую дату (день месяц год): ";
                         cin >> d >> m >> y;
-                        clearInput();  // ← ДОБАВЛЕНО
+                        clearInput(); 
                         Date date1(d, m, y);
         
                         cout << "Введите вторую дату (день месяц год): ";
                         cin >> d >> m >> y;
-                        clearInput();  // ← ДОБАВЛЕНО
+                        clearInput(); 
                         Date date2(d, m, y);
         
                         if (date1 == date2) {
@@ -191,7 +195,7 @@ int main() {
                     try {
                         cout << "Введите дату (день месяц год): ";
                         cin >> d >> m >> y;
-                        clearInput();  // ← ДОБАВЛЕНО
+                        clearInput(); 
                         Date date(d, m, y);
         
                         cout << "Введите количество дней: ";
